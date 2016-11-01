@@ -1,6 +1,7 @@
 import pyforms, math, cv2
+from pysettings import conf
 from pyforms import BaseWidget
-from pyforms.Controls import ControlText
+from pyforms.Controls import ControlNumber
 from pyforms.Controls import ControlList
 from pyforms.Controls import ControlCombo
 from pyforms.Controls import ControlButton
@@ -22,18 +23,17 @@ class TrackingWindow(BaseWidget):
 
 		self.layout().setMargin(5)
 		self.setMinimumHeight(800)
-		self.setMinimumWidth(1200)
+		self.setMinimumWidth(900)
 
-		self._start 		= ControlText('Start on frame',"0")
-		self._end 			= ControlText('End on frame', "10")
+		self._start 		= ControlNumber('Start on frame',0)
+		self._end 			= ControlNumber('End on frame', 10)
 		self._objects 		= ControlCheckBoxList('Select the objects to track')
 		self._filter_panel 	= ControlEmptyWidget('Filter')
 		self._progress  	= ControlProgress('Progress')
-		self._apply 		= ControlButton('Apply')
+		self._apply 		= ControlButton('Apply', checkable=True)
 
 		self._formset = [
-			('_start','_end'), 
-			'_objects',
+			('_objects',['_start','_end']), 
 			'_filter_panel',
 			'_apply',
 			'_progress'
@@ -45,6 +45,7 @@ class TrackingWindow(BaseWidget):
 		self._filter 				= SimpleImageFilterWorkflow(video=self.mainwindow._video.value)
 		self._filter_panel.value 	= self._filter
 		self._apply.value			= self.__apply_evt
+		self._apply.icon 			= conf.ANNOTATOR_ICON_PATH
 		
 		self._progress.hide()
 
@@ -90,88 +91,104 @@ class TrackingWindow(BaseWidget):
 	@property
 	def video_filename(self): return self._video_filename if hasattr(self,'_video_filename') else None
 	@video_filename.setter
-	def video_filename(self, value):  self._filter.filename = value
-
+	def video_filename(self, value):  
+		self._filter.filename = value
+		self._start.max = self.player.max
+		self._end.max = self.player.max
 	
 
 	def __apply_evt(self):
-		start = eval(self._start.value)
-		end   = eval(self._end.value)
-		self._progress.min = start
-		self._progress.max = end
-		self._progress.show()
 
-		objects = self.objects
-		
-
-		paths = None
-		
-		capture = self.player.value
-		capture.set(cv2.CAP_PROP_POS_FRAMES, start); 
-		
-
-		
-		for index in range(start, end+1):
-			res, frame = capture.read()
-			if not res: break
-
-			paths = self._filter.processflow(frame)
-
-			step = 16581375 / (len(paths)+1)
-			for i, path in enumerate(paths): 
+		if self._apply.checked:
+			self._start.enabled = False
+			self._end.enabled = False
+			self._objects.enabled = False
+			self._filter_panel.enabled = False
+			self._apply.label = 'Cancel'
 
 
-				rgb_int = step*(i+1)
-				blue 	= rgb_int & 255
-				green 	= (rgb_int >> 8) & 255
-				red 	= (rgb_int >> 16) & 255
-				c 		= (blue, green, red)
-				path.draw(frame, color=c)
+			start = int(self._start.value)
+			end   = int(self._end.value)
+			self._progress.min = start
+			self._progress.max = end
+			self._progress.show()
+
+			self._filter.clear()
+
+			objects = self.objects
+			paths 	= None
 			
-			self.player.image 	 = frame
-			self._progress.value = index
-
-		if paths is None: return
-
-		objects = self.objects
-		if len(paths)>len(objects):
-			objects += [None for i in range(len(paths)-len(objects))]
-		elif len(paths)<len(objects):
-			paths += [None for i in range(len(objects)-len(paths))]
-
-		classifications = []
-		for comb in combinations( paths, objects):
-
-			classification = 0
-			for path, obj in comb:
-				if not path or not obj: continue
-
-				distances = []
-				for i, b in enumerate(path.path):
-					if b is None: continue 
-					m = obj.get_moment(start + i)
-					if m is None: continue 
-
-					p0   = m.position
-					p1 	 = path.centroid
-					dist = math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
-					
-					distances.append( dist )
-
-				classification += sum(distances)/len(distances)
+			capture = self.player.value
+			capture.set(cv2.CAP_PROP_POS_FRAMES, start); 
 			
-			classifications.append( (classification, comb) )
-			
-		classifications = sorted(classifications, key=lambda x: x[0])
-		for path, obj in classifications[0][1]:
-			if obj is None: continue
 			for index in range(start, end+1):
-				b = path.path[index-start]
-				if b:
-					x,y = b
-					obj.set_position(index, x, y)
+				res, frame = capture.read()
+				if not res: break
+				if not self._apply.checked: break
 
-		
+				paths = self._filter.processflow(frame)
+
+				"""
+				step = 16581375 / (len(paths)+1)
+				for i, path in enumerate(paths): 
+
+
+					rgb_int = step*(i+1)
+					blue 	= rgb_int & 255
+					green 	= (rgb_int >> 8) & 255
+					red 	= (rgb_int >> 16) & 255
+					c 		= (blue, green, red)
+					path.draw(frame, color=c)
+				
+				self.player.image 	 = frame"""
+				self._progress.value = index
+
+			if paths is not None and self._apply.checked:
+
+				objects = self.objects
+				if len(paths)>len(objects):
+					objects += [None for i in range(len(paths)-len(objects))]
+				elif len(paths)<len(objects):
+					paths += [None for i in range(len(objects)-len(paths))]
+
+				classifications = []
+				for comb in combinations( paths, objects):
+
+					classification = 0
+					for path, obj in comb:
+						if not path or not obj: continue
+
+						distances = []
+						for i, b in enumerate(path.path):
+							if b is None: continue 
+							pos = obj.get_position(start + i)
+							if pos is None: continue 
+
+							p0   = pos
+							p1 	 = path.centroid
+							dist = math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
+							
+							distances.append( dist )
+
+						classification += sum(distances)/len(distances)
+					
+					classifications.append( (classification, comb) )
+					
+				classifications = sorted(classifications, key=lambda x: x[0])
+				for path, obj in classifications[0][1]:
+					if obj is None: continue
+					for frame_index in range(start, end+1):
+						blob = path[frame_index-start]
+						if blob: obj.set_data_from_blob(frame_index, blob)
+							
+
+			self._start.enabled = True
+			self._end.enabled = True
+			self._objects.enabled = True
+			self._filter_panel.enabled = True
+			self._apply.label = 'Apply'
+			self._apply.checked = False
+			self._progress.hide()
 
 		
 	@property
