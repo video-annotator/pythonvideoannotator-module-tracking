@@ -20,23 +20,6 @@ class Module(object):
 		)
 
 
-	def video_changed_evt(self):
-		super(Module, self).video_changed_evt()
-		self.tracking_window.video_filename = self._video.value
-	
-
-	def add_dataset_evt(self, dataset):
-		super(Module, self).add_dataset_evt(dataset)
-		self.tracking_window.add_dataset_evt(dataset)
-
-	def remove_dataset_evt(self, dataset):
-		super(Module, self).remove_dataset_evt(dataset)
-		self.tracking_window.remove_dataset_evt(dataset)
-
-	def remove_object_evt(self, obj):
-		super(Module, self).remove_object_evt(obj)
-		self.tracking_window.remove_object_evt(obj)
-
 
 	
 	######################################################################################
@@ -46,9 +29,10 @@ class Module(object):
 	
 	def save(self, data, project_path=None):
 		data = super(Module, self).save(data, project_path)
-		data['tracking-settings'] = self.tracking_window.save({})
+		data['tracking-settings'] = self.tracking_window.save_form({})
 		return data
 
 	def load(self, data, project_path=None):
 		super(Module, self).load(data, project_path)
-		if 'tracking-settings' in data: self.tracking_window.load(data['tracking-settings'])
+		if 'tracking-settings' in data: self.tracking_window.load_form(data['tracking-settings'])
+		
