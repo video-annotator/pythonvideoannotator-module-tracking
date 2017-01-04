@@ -109,7 +109,7 @@ class TrackingWindow(BaseWidget):
 			count = 0
 			for video, (begin, end), paths in self.paths_dialog.selected_data:
 				if len(paths)==0: continue
-				begin, end = int(begin), int(end)
+				begin, end = int(begin), int(end)+1
 
 				self._filter.clear()
 				self._filter.video_capture = capture = video.video_capture
@@ -130,7 +130,6 @@ class TrackingWindow(BaseWidget):
 
 				if blobs_paths is not None and self._apply.checked:
 					
-					print video, begin, end, paths
 				
 					if len(paths)>len(paths):
 						paths += [None for i in range(len(blobs_paths)-len(paths))]

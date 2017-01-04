@@ -1,4 +1,5 @@
 from pysettings import conf
+from pythonvideoannotator.utils import tools
 import cv2, numpy as np, os, math
 import base64
 
@@ -26,54 +27,56 @@ class TrackingPath(object):
 
 
 
+
+
+
 	################# BOUNDING RECT ###################################################
 		
 	def create_tracking_boundingrect_tree_nodes(self):
+		self.create_group_node('contour > bounding rect', icon=conf.ANNOTATOR_ICON_AREA)
+		self.create_data_node('contour > bounding rect > left x', icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('contour > bounding rect > left y', icon=conf.ANNOTATOR_ICON_Y)
+		self.create_data_node('contour > bounding rect > width',  icon=conf.ANNOTATOR_ICON_WIDTH)
+		self.create_data_node('contour > bounding rect > height', icon=conf.ANNOTATOR_ICON_HEIGHT)	
+		self.create_data_node('contour > bounding rect > aspect ratio', icon=conf.ANNOTATOR_ICON_ASPECT_RATIO)
+		self.create_data_node('contour > bounding rect > area',   icon=conf.ANNOTATOR_ICON_AREA)		
+		self.create_data_node('contour > bounding rect > extend', icon=conf.ANNOTATOR_ICON_INFO)
 
+	def get_contour_boundingrect_leftx_value(self, index):
+		v = self.get_bounding_box(index)
+		return v[0] if v is not None else None
+
+	def get_contour_boundingrect_lefty_value(self, index):
+		v = self.get_bounding_box(index)
+		return v[1] if v is not None else None
+
+	def get_contour_boundingrect_width_value(self, index):
+		v = self.get_bounding_box(index)
+		return v[2] if v is not None else None
+
+	def get_contour_boundingrect_height_value(self, index):
+		v = self.get_bounding_box(index)
+		return v[3] if v is not None else None
+
+	def get_contour_boundingrect_aspectratio_value(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		x,y,w,h = cv2.boundingRect(cnt)
+		return float(w)/float(h)
+
+	def get_contour_boundingrect_area_value(self, index):
+		v = self.get_bounding_box(index)
+		return v[0]*v[1] if v is not None else None
 		
-		boundingrect_treenode = self.tree.create_child('bounding rect', icon=conf.ANNOTATOR_ICON_AREA, parent=self.treenode_countour)
-
-		boundingrect_leftx_treenode = self.tree.create_child('left x', icon=conf.ANNOTATOR_ICON_X, parent=boundingrect_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_boundingbox_leftx_to_timeline_event, item=boundingrect_leftx_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-
-		boundingrect_topy_treenode = self.tree.create_child('top y', icon=conf.ANNOTATOR_ICON_Y, parent=boundingrect_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_boundingbox_topy_to_timeline_event, item=boundingrect_topy_treenode,icon=conf.ANNOTATOR_ICON_TIMELINE)
-
-		boundingrect_width_treenode = self.tree.create_child('width', icon=conf.ANNOTATOR_ICON_WIDTH, parent=boundingrect_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_boundingbox_width_to_timeline_event, item=boundingrect_width_treenode,icon=conf.ANNOTATOR_ICON_TIMELINE)
-
-		boundingrect_height_treenode = self.tree.create_child('height', icon=conf.ANNOTATOR_ICON_HEIGHT, parent=boundingrect_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_boundingbox_height_to_timeline_event, item=boundingrect_height_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-
-		boundingrect_aspectration_treenode = self.tree.create_child('aspect ratio', icon=conf.ANNOTATOR_ICON_ASPECT_RATIO, parent=boundingrect_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_aspect_ratio_to_timeline_event, item=boundingrect_aspectration_treenode,icon=conf.ANNOTATOR_ICON_TIMELINE)
-		
-		boundingrect_extend_treenode = self.tree.create_child('extend', icon=conf.ANNOTATOR_ICON_INFO, parent=boundingrect_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_extend_to_timeline_event, item=boundingrect_extend_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-
-		boundingrect_treenode.win = boundingrect_extend_treenode.win = \
-		boundingrect_width_treenode.win = boundingrect_height_treenode.win = \
-		boundingrect_aspectration_treenode.win = boundingrect_leftx_treenode.win = \
-		boundingrect_topy_treenode.win = self
-
+	def get_contour_boundingrect_extend_value(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		area = cv2.contourArea(cnt)
+		x,y,w,h = cv2.boundingRect(cnt)
+		rect_area = w*h
+		return float(area)/float(rect_area)
 
 	################# BOUNDING RECT ###################################################
-		
-	def __send_boundingbox_leftx_to_timeline_event(self):
-		data = [(i,self.get_bounding_box(i)[0]) for i in range(len(self)) if self.get_bounding_box(i) is not None]
-		self.mainwindow.add_graph('{0} bounding box - left x'.format(self.name), data)
-
-	def __send_boundingbox_topy_to_timeline_event(self):
-		data = [(i,self.get_bounding_box(i)[1]) for i in range(len(self)) if self.get_bounding_box(i) is not None]
-		self.mainwindow.add_graph('{0} bounding box - top y'.format(self.name), data)
-
-	def __send_boundingbox_width_to_timeline_event(self):
-		data = [(i,self.get_bounding_box(i)[2]) for i in range(len(self)) if self.get_bounding_box(i) is not None]
-		self.mainwindow.add_graph('{0} bounding box - width'.format(self.name), data)
-
-	def __send_boundingbox_height_to_timeline_event(self):
-		data = [(i,self.get_bounding_box(i)[3]) for i in range(len(self)) if self.get_bounding_box(i) is not None]
-		self.mainwindow.add_graph('{0} bounding box - height'.format(self.name), data)
 
 
 
@@ -86,79 +89,39 @@ class TrackingPath(object):
 	################# EXTREME POINTS ####################################################
 		
 	def create_tracking_extremepoints_tree_nodes(self):
-
-		extremepoints_treenode = self.tree.create_child('extreme points', 
-			icon=conf.ANNOTATOR_ICON_ELLIPSE, parent=self.treenode_countour )
-
+		self.create_group_node('contour > extreme points', 			icon=conf.ANNOTATOR_ICON_ELLIPSE)
 		
-		p1_treenode = self.tree.create_child('p1', 
-			icon=conf.ANNOTATOR_ICON_POINT, parent=extremepoints_treenode )
-
-		p1_x_treenode = self.tree.create_child('x', icon=conf.ANNOTATOR_ICON_X, parent=p1_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', 
-			function_action=self.__send_extremepts_p1_x_to_timeline_event, 
-			item=p1_x_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		self.create_group_node('contour > extreme points > p1', 	icon=conf.ANNOTATOR_ICON_POINT)
+		self.create_data_node('contour > extreme points > p1 > x', 	icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('contour > extreme points > p1 > y', 	icon=conf.ANNOTATOR_ICON_Y)
 		
-		p1_y_treenode = self.tree.create_child('y', icon=conf.ANNOTATOR_ICON_Y, parent=p1_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', 
-			function_action=self.__send_extremepts_p1_y_to_timeline_event, 
-			item=p1_y_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		self.create_group_node('contour > extreme points > p2', 	icon=conf.ANNOTATOR_ICON_POINT)
+		self.create_data_node('contour > extreme points > p2 > x', 	icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('contour > extreme points > p2 > y', 	icon=conf.ANNOTATOR_ICON_Y)
 		
-
-
-		p2_treenode = self.tree.create_child('p2', 
-			icon=conf.ANNOTATOR_ICON_POINT, parent=extremepoints_treenode )
-				
-		p2_x_treenode = self.tree.create_child('x', icon=conf.ANNOTATOR_ICON_X, parent=p2_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', 
-			function_action=self.__send_extremepts_p2_x_to_timeline_event, 
-			item=p2_x_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		self.create_data_node('contour > extreme points > angle', 	icon=conf.ANNOTATOR_ICON_ANGLE)		
 		
-		p2_y_treenode = self.tree.create_child('y', icon=conf.ANNOTATOR_ICON_Y, parent=p2_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', 
-			function_action=self.__send_extremepts_p2_y_to_timeline_event, 
-			item=p2_y_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+	def get_contour_extremepoints_p1_x_value(self, index):
+		v = self.get_extreme_points(index)
+		return v[0][0] if v is not None else None
 
-		
+	def get_contour_extremepoints_p1_y_value(self, index):
+		v = self.get_extreme_points(index)
+		return v[0][1] if v is not None else None
 
-		angle_treenode = self.tree.create_child('angle', 
-			icon=conf.ANNOTATOR_ICON_ANGLE, parent=extremepoints_treenode )
-		self.tree.add_popup_menu_option(label='View on the timeline', 
-			function_action=self.__send_extremepts_angle_to_timeline_event, 
-			item=angle_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+	def get_contour_extremepoints_p2_x_value(self, index):
+		v = self.get_extreme_points(index)
+		return v[1][0] if v is not None else None
 
+	def get_contour_extremepoints_p2_y_value(self, index):
+		v = self.get_extreme_points(index)
+		return v[1][1] if v is not None else None
 
-		extremepoints_treenode.win = angle_treenode.win = \
-		p1_treenode.win = p1_x_treenode.win = p1_y_treenode.win = \
-		p2_treenode.win = p2_x_treenode.win = p2_y_treenode.win = \
-		angle_treenode.win = self
-		
+	def get_contour_extremepoints_angle_value(self, index):
+		v = self.get_extreme_points(index)
+		return math.degrees(points_angle(v[0], v[1])) if v is not None else None
 
 	################# FIT ELLISPSE ####################################################
-	
-	def __send_extremepts_p1_x_to_timeline_event(self):
-		data = [(i,self.get_extreme_points(i)[0][0]) for i in range(len(self)) if self.get_extreme_points(i)[0] is not None]
-		self.mainwindow.add_graph('{0} - extreme point p1 - x'.format(self.name), data)
-
-	def __send_extremepts_p1_y_to_timeline_event(self):
-		data = [(i,self.get_extreme_points(i)[0][1]) for i in range(len(self)) if self.get_extreme_points(i)[0] is not None]
-		self.mainwindow.add_graph('{0} - extreme point p1 - y'.format(self.name), data)
-
-	def __send_extremepts_p2_x_to_timeline_event(self):
-		data = [(i,self.get_extreme_points(i)[1][0]) for i in range(len(self)) if self.get_extreme_points(i)[1] is not None]
-		self.mainwindow.add_graph('{0} - extreme point p2 - x'.format(self.name), data)
-
-	def __send_extremepts_p2_y_to_timeline_event(self):
-		data = [(i,self.get_extreme_points(i)[1][1]) for i in range(len(self)) if self.get_extreme_points(i)[1] is not None]
-		self.mainwindow.add_graph('{0} - extreme point p2 - x'.format(self.name), data)
-
-	def __send_extremepts_angle_to_timeline_event(self):
-		data = []
-		for i in range(len(self)):
-			p1, p2 = self.get_extreme_points(i)
-			if p1 is not None and p2 is not None:
-				data.append( (i, math.degrees(points_angle(p2, p1)) ) )
-		self.mainwindow.add_graph('{0} - extreme points - angle - degrees'.format(self.name), data)
 
 
 
@@ -170,55 +133,37 @@ class TrackingPath(object):
 
 
 
-
-
-	################# FIT ELLISPSE ####################################################
+	################# FIT ELLIPSE ####################################################
 		
 	def create_tracking_fitellipse_tree_nodes(self):
-
-		fitellipse_treenode = self.tree.create_child('fit ellipse', icon=conf.ANNOTATOR_ICON_ELLIPSE, parent=self.treenode_countour )
+		self.create_group_node('contour > fit ellipse', 				 icon=conf.ANNOTATOR_ICON_ELLIPSE)
+		self.create_data_node('contour > fit ellipse > center x', 		 icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('contour > fit ellipse > center y', 		 icon=conf.ANNOTATOR_ICON_Y)
+		self.create_data_node('contour > fit ellipse > major axis size', icon=conf.ANNOTATOR_ICON_HEIGHT)
+		self.create_data_node('contour > fit ellipse > minor axis size', icon=conf.ANNOTATOR_ICON_WIDTH)
+		self.create_data_node('contour > fit ellipse > angle', 			 icon=conf.ANNOTATOR_ICON_ANGLE)
 		
-		fitellipse_centerx_treenode = self.tree.create_child('center x', icon=conf.ANNOTATOR_ICON_X, parent=fitellipse_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_fitellipse_centerx_to_timeline_event, item=fitellipse_centerx_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+	def get_contour_fitellipse_centerx_value(self, index):
+		v = self.get_fit_ellipse(index)
+		return v[0][0] if v is not None else None
 
-		fitellipse_centery_treenode = self.tree.create_child('center y', icon=conf.ANNOTATOR_ICON_Y, parent=fitellipse_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_fitellipse_centery_to_timeline_event, item=fitellipse_centery_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+	def get_contour_fitellipse_centery_value(self, index):
+		v = self.get_fit_ellipse(index)
+		return v[0][1] if v is not None else None
 
-		fitellipse_majoraxis_treenode = self.tree.create_child('Major axis size', icon=conf.ANNOTATOR_ICON_HEIGHT, parent=fitellipse_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_fitellipse_majoraxis_to_timeline_event, item=fitellipse_majoraxis_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+	def get_contour_fitellipse_majoraxissize_value(self, index):
+		v = self.get_fit_ellipse(index)
+		return v[1][0] if v is not None else None
 
-		fitellipse_minoraxis_treenode = self.tree.create_child('Minor axis size', icon=conf.ANNOTATOR_ICON_WIDTH, parent=fitellipse_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_fitellipse_minoraxis_to_timeline_event, item=fitellipse_minoraxis_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+	def get_contour_fitellipse_minoraxissize_value(self, index):
+		v = self.get_fit_ellipse(index)
+		return v[1][1] if v is not None else None
 
-		fitellipse_angle_treenode = self.tree.create_child('Angle', icon=conf.ANNOTATOR_ICON_ANGLE, parent=fitellipse_treenode)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_fitellipse_angle_to_timeline_event, item=fitellipse_angle_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+	def get_contour_fitellipse_angle_value(self, index):
+		v = self.get_fit_ellipse(index)
+		return v[2] if v is not None else None
 
-		fitellipse_treenode.win = fitellipse_centerx_treenode.win = \
-		fitellipse_centery_treenode.win = fitellipse_majoraxis_treenode.win = \
-		fitellipse_minoraxis_treenode.win = fitellipse_angle_treenode.win = self
-
-
-	################# FIT ELLISPSE ####################################################
-	
-	def __send_fitellipse_centerx_to_timeline_event(self):
-		data = [(i,self.get_fit_ellipse(i)[0]) for i in range(len(self)) if self.get_fit_ellipse(i) is not None]
-		self.mainwindow.add_graph('{0} fit ellipse - center x'.format(self.name), data)
-
-	def __send_fitellipse_centery_to_timeline_event(self):
-		data = [(i,self.get_fit_ellipse(i)[1]) for i in range(len(self)) if self.get_fit_ellipse(i) is not None]
-		self.mainwindow.add_graph('{0} fit ellipse - center y'.format(self.name), data)
-
-	def __send_fitellipse_majoraxis_to_timeline_event(self):
-		data = [(i,self.get_fit_ellipse(i)[2]) for i in range(len(self)) if self.get_fit_ellipse(i) is not None]
-		self.mainwindow.add_graph('{0} fit ellipse - major axis'.format(self.name), data)
-
-	def __send_fitellipse_minoraxis_to_timeline_event(self):
-		data = [(i,self.get_fit_ellipse(i)[3]) for i in range(len(self)) if self.get_fit_ellipse(i) is not None]
-		self.mainwindow.add_graph('{0} fit ellipse - minor axis'.format(self.name), data)
-
-	def __send_fitellipse_angle_to_timeline_event(self):
-		data = [(i,self.get_fit_ellipse(i)[3]) for i in range(len(self)) if self.get_fit_ellipse(i) is not None]
-		self.mainwindow.add_graph('{0} fit ellipse - angle'.format(self.name), data)
+	################# FIT ELLIPSE ####################################################
 
 
 
@@ -227,65 +172,60 @@ class TrackingPath(object):
 
 
 
-	def create_tracking_tree_nodes(self):		
-		self.treenode_countour 	= self.tree.create_child('countour', icon=conf.ANNOTATOR_ICON_CONTOUR, parent=self.treenode )
+
+	################# CONVEX HULL ####################################################
+		
+	def create_tracking_convexhull_tree_nodes(self):
+		self.create_group_node('contour > convex hull', 		  icon=conf.ANNOTATOR_ICON_HULL)
+		self.create_data_node('contour > convex hull > solidity', icon=conf.ANNOTATOR_ICON_BLACK_CIRCLE)
+		
+	def get_contour_convexhull_solidity_value(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		area = cv2.contourArea(cnt)
+		hull = cv2.convexHull(cnt)
+		hull_area = cv2.contourArea(hull)
+		return float(area)/float(hull_area)
+
+	################# CONVEX HULL ####################################################
+
+
+
+
+
+
+
+
+	def create_tracking_tree_nodes(self):
+		self.create_group_node('contour', icon=conf.ANNOTATOR_ICON_CONTOUR)
+		
 		
 		################# CONTOUR #########################################################
-		
-		area_treenode = self.tree.create_child('area', icon=conf.ANNOTATOR_ICON_AREA, parent=self.treenode_countour )
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_area_to_timeline_event, item=area_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-
-		equivalentdiameter_treenode = self.tree.create_child('equivalent diameter', icon=conf.ANNOTATOR_ICON_CIRCLE, parent=self.treenode_countour )
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_equivalent_diameter_to_timeline_event, item=equivalentdiameter_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		
+		self.create_data_node('contour > area', icon=conf.ANNOTATOR_ICON_AREA)
+		self.create_data_node('contour > equivalent diameter', icon=conf.ANNOTATOR_ICON_CIRCLE)
 
 		self.create_tracking_boundingrect_tree_nodes()		
 		self.create_tracking_fitellipse_tree_nodes()
 		self.create_tracking_extremepoints_tree_nodes()
-		
-		################# CONVEX HULL #####################################################
-		
-		convexhull_treenode = self.tree.create_child('convex hull', icon=conf.ANNOTATOR_ICON_HULL, parent=self.treenode_countour )
-		
-
-		solidity_treenode = self.tree.create_child('solidity', icon=conf.ANNOTATOR_ICON_BLACK_CIRCLE, parent=convexhull_treenode )
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_solidity_to_timeline_event, item=solidity_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		
-
-		
-		solidity_treenode.win = equivalentdiameter_treenode.win = \
-		convexhull_treenode.win = \
-		self.treenode_countour.win = area_treenode.win = self
-
-
+		self.create_tracking_convexhull_tree_nodes()
+				
 	######################################################################
 	### FUNCTIONS ########################################################
 	######################################################################
 
 	################# CONTOUR #########################################################
+
+	def get_contour_area_value(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		return cv2.contourArea(cnt)	
+
+	def get_contour_equivalentdiameter_value(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		area = cv2.contourArea(cnt)
+		return np.sqrt(4*area/np.pi)	
 		
-	def __send_area_to_timeline_event(self):
-		data = [(i,self.get_area(i)) for i in range(len(self)) if self.get_area(i) is not None]
-		self.mainwindow.add_graph('{0} area'.format(self.name), data)
-
-	def __send_equivalent_diameter_to_timeline_event(self):
-		data = [(i,self.get_equivalent_diameter(i)) for i in range(len(self)) if self.get_equivalent_diameter(i) is not None]
-		self.mainwindow.add_graph('{0} equivalent diameter'.format(self.name), data)
-
-	
-	
-	def __send_aspect_ratio_to_timeline_event(self):
-		data = [(i,self.get_aspect_ratio(i)) for i in range(len(self)) if self.get_aspect_ratio(i) is not None]
-		self.mainwindow.add_graph('{0} aspect ratio'.format(self.name), data)
-
-	def __send_extend_to_timeline_event(self):
-		data = [(i,self.get_extend(i)) for i in range(len(self)) if self.get_extend(i) is not None]
-		self.mainwindow.add_graph('{0} extend'.format(self.name), data)
-
-	def __send_solidity_to_timeline_event(self):
-		data = [(i,self.get_solidity(i)) for i in range(len(self)) if self.get_solidity(i) is not None]
-		self.mainwindow.add_graph('{0} solidity'.format(self.name), data)
-
 	
 
 	######################################################################
@@ -306,42 +246,6 @@ class TrackingPath(object):
 		cnt = self.get_contour(index)
 		if cnt is None: return None
 		pass
-
-
-	def get_extend(self, index):
-		cnt = self.get_contour(index)
-		if cnt is None: return None
-		area = cv2.contourArea(cnt)
-		x,y,w,h = cv2.boundingRect(cnt)
-		rect_area = w*h
-		return float(area)/float(rect_area)
-
-	def get_solidity(self, index):
-		cnt = self.get_contour(index)
-		if cnt is None: return None
-		area = cv2.contourArea(cnt)
-		hull = cv2.convexHull(cnt)
-		hull_area = cv2.contourArea(hull)
-		return float(area)/float(hull_area)
-
-	def get_equivalent_diameter(self, index):
-		cnt = self.get_contour(index)
-		if cnt is None: return None
-		area = cv2.contourArea(cnt)
-		return np.sqrt(4*area/np.pi)
-
-
-	def get_aspect_ratio(self, index):
-		cnt = self.get_contour(index)
-		if cnt is None: return None
-		x,y,w,h = cv2.boundingRect(cnt)
-		return float(w)/float(h)
-
-	def get_area(self, index):
-		cnt = self.get_contour(index)
-		if cnt is None: return None
-		return cv2.contourArea(cnt)
-
 
 	def get_extreme_points(self, index):
 		centroid = self.get_position(index)
@@ -366,7 +270,7 @@ class TrackingPath(object):
 		return self._contours[index] if self._contours[index] is not None else None
 
 	def set_contour(self, index, contour):
-		if not hasattr(self, 'treenode_countour'): self.create_tracking_tree_nodes()
+		if not hasattr(self, 'treenode_contour'): self.create_tracking_tree_nodes()
 		# add contours in case they do not exists
 		if index >= len(self._contours):
 			for i in range(len(self._contours), index + 1): self._contours.append(None)
@@ -420,7 +324,7 @@ class TrackingPath(object):
 		return data
 
 	def load(self, data, dataset_path=None):
-		super(TrackingPath, self).load(data, dataset_path)		
+		super(TrackingPath, self).load(data, dataset_path)
 		contours_file = os.path.join(dataset_path, 'contours.csv')
 		
 		if os.path.exists(contours_file):
@@ -438,3 +342,6 @@ class TrackingPath(object):
 					contour = np.frombuffer(base64.decodestring(csvrow[1]), np.int32)
 					contour = contour.reshape(shape)
 					self.set_contour(frame, contour)
+
+
+
