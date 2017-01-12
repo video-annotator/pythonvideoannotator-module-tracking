@@ -16,7 +16,7 @@ class Module(object):
 
 
 		self.mainmenu[1]['Modules'].append(
-			{'Tracking': self.tracking_window.show, 'icon':conf.ANNOTATOR_ICON_PATH },			
+			{'Track objects': self.tracking_window.show, 'icon':conf.ANNOTATOR_ICON_PATH },			
 		)
 
 

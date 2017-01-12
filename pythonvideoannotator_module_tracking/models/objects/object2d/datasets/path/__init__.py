@@ -1,1 +1,0 @@
-from pythonvideoannotator_module_tracking.models.objects.object2d.datasets.path.tracking_path import TrackingPath as Path
