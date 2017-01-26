@@ -130,8 +130,6 @@ class TrackingWindow(BaseWidget):
 
 				begin, end = int(begin), int(end)+1
 
-				
-
 
 				#set the video in the one frame before and read the frame.
 				#I use this technique because for some formats of videos opencv does not jump immediately to the requested frame
@@ -182,8 +180,12 @@ class TrackingWindow(BaseWidget):
 						for blob_path, dataset in classifications[0][1]:
 							if dataset is None: continue
 							for frame_index in range(begin, end):
-								blob = blob_path[frame_index-begin]
-								if blob: dataset.set_data_from_blob(frame_index, blob)
+								if blob_path is None:
+									dataset.set_data_from_blob(frame_index, None)
+								else:
+									if len(blob_path)<=(frame_index-begin): continue
+									blob = blob_path[frame_index-begin]
+									if blob: dataset.set_data_from_blob(frame_index, blob)
 
 
 

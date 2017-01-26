@@ -2,8 +2,11 @@ from mcvgui.dialogs.simple_filter import SimpleFilter
 import pyforms
 
 from mcvgui.filters.adaptative_threshold 	import AdaptativeThreshold
-from mcvgui.masks.polygons_mask 			import PolygonsMask
-from mcvgui.masks.path_mask 				import PathMask
+#from mcvgui.masks.polygons_mask 			import PolygonsMask
+#from mcvgui.masks.path_mask 				import PathMask
+
+from pythonvideoannotator_module_tracking.polygons_mask import PolygonsMask
+from pythonvideoannotator_module_tracking.path_mask 	import PathMask
 
 from mcvgui.blobs.find_blobs 			import FindBlobs
 from mcvgui.blobs.biggests_blobs 		import BiggestsBlobs
@@ -33,11 +36,6 @@ class TrackingFilter(SimpleFilter):
 	########################################################################
 	### PRIVATE FUNCTION ###################################################
 	########################################################################
-
-	def __create_path_mask(self):
-		maskfilter = PathMask()
-		maskfilter.pathmask_select_paths_event = self.__select_paths_2_mask_event
-		return maskfilter
 		
 	def __load_images_filters(self):
 		# set the available filters for the images
@@ -52,13 +50,13 @@ class TrackingFilter(SimpleFilter):
 		
 		self.add_image_filters('Adaptative threshold + path mask', [
 			('Threshold', 	AdaptativeThreshold ),
-			('Paths', 		self.__create_path_mask  )
+			('Paths', 		PathMask  )
 		])
 
 		self.add_image_filters('Adaptative threshold + mask + path mask', [
 			('Threshold', 	AdaptativeThreshold ),
 			('Mask', 		PolygonsMask 		),
-			('Paths', 		self.__create_path_mask  )
+			('Paths', 		PathMask  			)
 		])
 
 	def __load_blobs_filters(self):
@@ -70,36 +68,6 @@ class TrackingFilter(SimpleFilter):
 			('Tack paths', 			TrackPath		)
 		])
 
-	def __update_paths_mask(self):
-		# set the paths for the PathMask filters		
-		for f in self.image_filters: 
-			if isinstance(f, PathMask):
-				f.mask_paths = [path for path in self._paths_2_mask if path.object2d.video==self.video]
-
-	########################################################################
-	### EVENTS #############################################################
-	########################################################################
-
-	def __select_paths_2_mask_event(self):
-		# open the datasets dialog for the PathMask filter
-		if not hasattr(self, '_paths2mask_dialog'):
-			self._paths2mask_dialog = DatasetsDialog()
-			self._paths2mask_dialog.interval_visible   = False
-			self._paths2mask_dialog.apply_event = self.__paths_2_mask_selected_event
-			self._paths2mask_dialog.datasets_filter = lambda x: isinstance(x, (Contours,Path) )
-
-		self._paths2mask_dialog.clear()
-		for video in self.parentwindow.videos: self._paths2mask_dialog += video		
-		self._paths2mask_dialog.show()
-
-	def __paths_2_mask_selected_event(self):
-		# function called when the apply button from the _paths2mask_dialog is pressed
-		self._paths2mask_dialog.hide()
-		self._paths_2_mask = self._paths2mask_dialog.datasets
-		self.__update_paths_mask()
-
-
-	
 	########################################################################
 	### PROPERTIES #########################################################
 	########################################################################
@@ -113,8 +81,19 @@ class TrackingFilter(SimpleFilter):
 
 
 	@property
-	def parentwindow(self): return self._parent
-	
+	def image_filters(self): return SimpleFilter.image_filters.fget(self)
+	@image_filters.setter
+	def image_filters(self, value): 
+		SimpleFilter.image_filters.fset(self, value)
+		self.video = self._video
+
+
+	@property
+	def blobs_filters(self): return SimpleFilter.blobs_filters.fget(self)
+	@blobs_filters.setter
+	def blobs_filters(self, value): 
+		SimpleFilter.blobs_filters.fset(self, value)
+		self.video = self._video
 
 	
 
