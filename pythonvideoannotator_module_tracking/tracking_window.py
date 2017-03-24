@@ -122,14 +122,10 @@ class TrackingWindow(BaseWidget):
 				capture = cv2.VideoCapture(video.filepath)
 				capture.set(cv2.CAP_PROP_POS_FRAMES, begin)
 
-				self._filter.clear()
 				self._filter.video = video
 				self._filter.clear()
-				self._filter.video_capture = capture
-
-
+				
 				begin, end = int(begin), int(end)+1
-
 
 				#set the video in the one frame before and read the frame.
 				#I use this technique because for some formats of videos opencv does not jump immediately to the requested frame
@@ -175,7 +171,9 @@ class TrackingWindow(BaseWidget):
 						
 						classifications.append( (classification, comb) )
 						
+
 					classifications = sorted(classifications, key=lambda x: x[0])
+
 					if len(classifications)>0:
 						for blob_path, dataset in classifications[0][1]:
 							if dataset is None: continue
@@ -185,6 +183,7 @@ class TrackingWindow(BaseWidget):
 								else:
 									if len(blob_path)<=(frame_index-begin): continue
 									blob = blob_path[frame_index-begin]
+
 									if blob: dataset.set_data_from_blob(frame_index, blob)
 
 
