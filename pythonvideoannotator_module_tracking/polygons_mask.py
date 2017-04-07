@@ -26,7 +26,6 @@ class PolygonsMask(Class, BaseWidget):
 	def __objects_changed_event(self):
 		polygons_list = []
 		for video, polygons_set in self._panel.value.selected_data:
-			print video.video_capture,'==',self._video
 			if video.video_capture==self._video: 
 				for polygons in polygons_set:
 					polygons_list += [p for l, p in polygons.geometry]

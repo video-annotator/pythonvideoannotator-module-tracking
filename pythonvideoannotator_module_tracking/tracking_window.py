@@ -20,7 +20,7 @@ from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path
 
 from pythonvideoannotator_models_gui.dialogs import DatasetsDialog
 
-import json
+import simplejson as json
 
 class TrackingWindow(BaseWidget):
 
@@ -28,7 +28,12 @@ class TrackingWindow(BaseWidget):
 		super(TrackingWindow, self).__init__('Tracking', parent_win=parent)
 		self.mainwindow = parent
 
-		self.layout().setMargin(5)
+		if conf.PYFORMS_USE_QT5:
+			self.layout().setContentsMargins(5,5,5,5)
+		else:
+			self.layout().setMargin(5)
+			
+
 		self.setMinimumHeight(800)
 		self.setMinimumWidth(1100)
 
