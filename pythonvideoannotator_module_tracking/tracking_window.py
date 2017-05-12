@@ -11,11 +11,12 @@ from pyforms.Controls import ControlCheckBoxList
 from pyforms.Controls import ControlEmptyWidget
 from pyforms.Controls import ControlProgress
 
-from mcvapi.blobs.order_by_position 		import combinations
+from mcvapi.blobs.order_by_position 						import combinations
 from pythonvideoannotator_module_tracking.tracking_filter 	import TrackingFilter
 
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.contours import Contours
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path import Path
+from pythonvideoannotator_models.models.video.objects.object2d import Object2D
 
 
 from pythonvideoannotator_models_gui.dialogs import DatasetsDialog
@@ -53,6 +54,7 @@ class TrackingWindow(BaseWidget):
 		]
 
 		self.input_dialog = DatasetsDialog(self)
+		self.input_dialog.objects_filter  = lambda x: isinstance(x, Object2D)
 		self.input_dialog.datasets_filter = lambda x: isinstance(x, (Contours,Path) )
 		self.input_dialog.video_selection_changed_event = self.__video_selection_changed_event
 		self._input.value = self.input_dialog
@@ -189,7 +191,8 @@ class TrackingWindow(BaseWidget):
 									if len(blob_path)<=(frame_index-begin): continue
 									blob = blob_path[frame_index-begin]
 
-									if blob: dataset.set_data_from_blob(frame_index, blob)
+									if blob:
+										dataset.set_data_from_blob(frame_index, blob)
 
 
 

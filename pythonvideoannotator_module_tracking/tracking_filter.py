@@ -2,16 +2,19 @@ from mcvgui.dialogs.simple_filter import SimpleFilter
 import pyforms
 
 from mcvgui.filters.adaptative_threshold 	import AdaptativeThreshold
+
 #from mcvgui.masks.polygons_mask 			import PolygonsMask
 #from mcvgui.masks.path_mask 				import PathMask
-
-from pythonvideoannotator_module_tracking.polygons_mask import PolygonsMask
-from pythonvideoannotator_module_tracking.path_mask 	import PathMask
+from pythonvideoannotator_module_tracking.background_subtract 	import BackgroundSubtract
+from pythonvideoannotator_module_tracking.polygons_mask 		import PolygonsMask
+from pythonvideoannotator_module_tracking.path_mask 			import PathMask
 
 from mcvgui.blobs.find_blobs 			import FindBlobs
 from mcvgui.blobs.biggests_blobs 		import BiggestsBlobs
 from mcvgui.blobs.order_by_position 	import OrderByPosition
 from mcvgui.blobs.track_path 			import TrackPath
+from mcvgui.filters.morphologyex_open	import MorphologyExOpen
+from mcvgui.filters.morphologyex_close	import MorphologyExClose
 
 from pythonvideoannotator_models_gui.dialogs import DatasetsDialog
 
@@ -39,24 +42,64 @@ class TrackingFilter(SimpleFilter):
 		
 	def __load_images_filters(self):
 		# set the available filters for the images
+
+		self.add_image_filters('Background subtract', [
+			('Background subtract', BackgroundSubtract 	),
+			('MorphologyEx open', 		MorphologyExOpen),
+			('MorphologyEx close', 	MorphologyExClose   )			
+		])
+
+		self.add_image_filters('Background subtract + mask', [
+			('Background subtract', BackgroundSubtract 	),
+			('MorphologyEx open', 		MorphologyExOpen),
+			('MorphologyEx close', 	MorphologyExClose   ),
+			('Mask', 				PolygonsMask 	   	)
+		])
+
+		self.add_image_filters('Background subtract + path mask', [
+			('Background subtract', BackgroundSubtract ),
+			('MorphologyEx open', 		MorphologyExOpen),			
+			('MorphologyEx close', 	MorphologyExClose   ),
+			('Paths', 				PathMask  			)
+		])
+
+		self.add_image_filters('Background subtract + mask + path mask', [
+			('Background subtract', BackgroundSubtract ),
+			('MorphologyEx open', 		MorphologyExOpen),
+			('MorphologyEx close', 	MorphologyExClose   ),
+			('Mask', 				PolygonsMask 		),
+			('Paths', 				PathMask  			)
+		])
+
+
+		#######################################################################
+
 		self.add_image_filters('Adaptative threshold', [
-			('Threshold', 	AdaptativeThreshold )
+			('Threshold', 	 AdaptativeThreshold 	),
+			('MorphologyEx open', MorphologyExOpen 	),
+			('MorphologyEx close', 	MorphologyExClose),
 		])
 
 		self.add_image_filters('Adaptative threshold + mask', [
-			('Threshold', 	AdaptativeThreshold ),
-			('Mask', 		PolygonsMask 		)
+			('Threshold', 		AdaptativeThreshold ),
+			('MorphologyEx open', 	MorphologyExOpen),
+			('MorphologyEx close', 	MorphologyExClose ),
+			('Mask', 			PolygonsMask 		)
 		])
 		
 		self.add_image_filters('Adaptative threshold + path mask', [
-			('Threshold', 	AdaptativeThreshold ),
-			('Paths', 		PathMask  )
+			('Threshold', 		AdaptativeThreshold ),
+			('MorphologyEx open',	MorphologyExOpen ),
+			('MorphologyEx close', 	MorphologyExClose ),
+			('Paths', 			PathMask  )
 		])
 
 		self.add_image_filters('Adaptative threshold + mask + path mask', [
-			('Threshold', 	AdaptativeThreshold ),
-			('Mask', 		PolygonsMask 		),
-			('Paths', 		PathMask  			)
+			('Threshold', 		 	AdaptativeThreshold ),
+			('MorphologyEx open', 	MorphologyExOpen 	),			
+			('MorphologyEx close', 	MorphologyExClose   ),
+			('Mask', 				PolygonsMask 		),
+			('Paths', 				PathMask  			)
 		])
 
 	def __load_blobs_filters(self):
