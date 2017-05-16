@@ -162,6 +162,7 @@ class TrackingWindow(BaseWidget):
 						classification = 0
 						for blob_path, dataset in comb:
 							if not blob_path or not dataset: continue
+							print(comb)
 
 							distances = []
 							for i, p1 in enumerate(blob_path.path):
