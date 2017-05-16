@@ -190,9 +190,7 @@ class TrackingWindow(BaseWidget):
 								else:
 									if len(blob_path)<=(frame_index-begin): continue
 									blob = blob_path[frame_index-begin]
-
-									if blob:
-										dataset.set_data_from_blob(frame_index, blob)
+									dataset.set_data_from_blob(frame_index, blob)
 
 
 
