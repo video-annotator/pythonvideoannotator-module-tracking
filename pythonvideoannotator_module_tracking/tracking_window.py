@@ -149,7 +149,7 @@ class TrackingWindow(BaseWidget):
 					self._progress.value = count
 					count += 1
 
-
+				print(1,'---------------------')
 				if blobs_paths is not None and self._apply.checked:
 
 					if   len(blobs_paths)>len(datasets_list):
@@ -157,15 +157,16 @@ class TrackingWindow(BaseWidget):
 					elif len(blobs_paths)<len(datasets_list):
 						blobs_paths += [None for i in range(len(datasets_list)-len(blobs_paths))]
 
+					print(2,'---------------------')
 					classifications = []
 					for comb in combinations( blobs_paths, datasets_list):
+						print(3,'---------------------', comb)
 						classification = 0
 						for blob_path, dataset in comb:
 							if not blob_path or not dataset: continue
-							print(comb)
-
+							
 							distances = []
-							for i, p1 in enumerate(blob_path.path):
+							for i, p1 in enumerate(blob_path.path[:100]):
 								if p1 is None: continue 
 								pos = dataset.get_position(begin + i)
 								if pos is None: continue 
@@ -182,7 +183,9 @@ class TrackingWindow(BaseWidget):
 
 					classifications = sorted(classifications, key=lambda x: x[0])
 
+					print(4,'---------------------')
 					if len(classifications)>0:
+						print(5,'---------------------', classifications[0][1])
 						for blob_path, dataset in classifications[0][1]:
 							if dataset is None: continue
 							for frame_index in range(begin, end):
