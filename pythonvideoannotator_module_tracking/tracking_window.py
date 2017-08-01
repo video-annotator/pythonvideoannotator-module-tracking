@@ -136,7 +136,8 @@ class TrackingWindow(BaseWidget):
 
 				#set the video in the one frame before and read the frame.
 				#I use this technique because for some formats of videos opencv does not jump immediately to the requested frame
-				blobs_paths = None
+				blobs_paths     = None
+				firstblob_index = begin
 
 				for index in range(begin, end):
 					res, frame = capture.read()
@@ -146,10 +147,12 @@ class TrackingWindow(BaseWidget):
 
 					blobs_paths = self._filter.processflow(frame)
 
+					if firstblob_index==begin and len(blobs_paths)>0: firstblob_index = index
+
 					self._progress.value = count
 					count += 1
 
-				print(1,'---------------------')
+				print(1,'--------------------- firstblob_index', firstblob_index)
 				if blobs_paths is not None and self._apply.checked:
 
 					if   len(blobs_paths)>len(datasets_list):
@@ -168,7 +171,7 @@ class TrackingWindow(BaseWidget):
 							distances = []
 							for i, p1 in enumerate(blob_path.path[:100]):
 								if p1 is None: continue 
-								pos = dataset.get_position(begin + i)
+								pos = dataset.get_position(firstblob_index + i)
 								if pos is None: continue 
 
 								p0   = pos
@@ -186,14 +189,17 @@ class TrackingWindow(BaseWidget):
 					print(4,'---------------------')
 					if len(classifications)>0:
 						print(5,'---------------------', classifications[0][1])
+						for frame_index in range(begin, firstblob_index):
+							dataset.set_data_from_blob(frame_index, None)
+
 						for blob_path, dataset in classifications[0][1]:
 							if dataset is None: continue
-							for frame_index in range(begin, end):
+							for frame_index in range(firstblob_index, end):
 								if blob_path is None:
 									dataset.set_data_from_blob(frame_index, None)
 								else:
-									if len(blob_path)<=(frame_index-begin): continue
-									blob = blob_path[frame_index-begin]
+									if len(blob_path)<=(frame_index-firstblob_index): continue
+									blob = blob_path[frame_index-firstblob_index]
 									dataset.set_data_from_blob(frame_index, blob)
 
 
