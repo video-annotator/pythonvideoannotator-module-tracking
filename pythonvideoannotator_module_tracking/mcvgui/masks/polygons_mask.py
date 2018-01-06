@@ -15,7 +15,7 @@ class PolygonsMask(Class, BaseWidget):
 		self.layout().setContentsMargins(10, 5, 10, 5)
 		self.setMinimumHeight(150)
 
-		self._panel	= ControlEmptyWidget('Panel', ObjectsDialog() )
+		self._panel	= ControlEmptyWidget('Panel', default=ObjectsDialog() )
 		self._panel.value.objects_filter = lambda x: isinstance(x, Geometry)
 		self._panel.value.objects_changed_event = self.__objects_changed_event
 

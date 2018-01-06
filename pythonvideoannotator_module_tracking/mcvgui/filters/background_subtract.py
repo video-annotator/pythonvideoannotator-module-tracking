@@ -15,12 +15,12 @@ class BackgroundSubtract(Class, BaseWidget):
 		self.layout().setContentsMargins(10, 5, 10, 5)
 		self.setMinimumHeight(230)
 
-		self._panel	= ControlEmptyWidget('Panel', ObjectsDialog() )
+		self._panel	= ControlEmptyWidget('Panel', default=ObjectsDialog() )
 		self._panel.value.objects_filter = lambda x: isinstance(x, Image)
 		self._panel.value.objects_changed_event = self.__objects_changed_event
 
 		self.formset = [
-			'_param_background_subtract_threshold',
+			'_field_background_subtract_threshold',
 			'_panel'
 		]
 
@@ -31,7 +31,7 @@ class BackgroundSubtract(Class, BaseWidget):
 	def __objects_changed_event(self):
 		for video, images in self._panel.value.selected_data:
 			for image in images:
-				self.background_subtract_image = image.image
+				self._param_backgroundsubtract_image = image.image
 
 
 
