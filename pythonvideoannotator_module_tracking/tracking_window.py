@@ -1,10 +1,10 @@
 from pysettings import conf
-"""
+
 class Settings(object):
     PYFORMS_MODE = 'TERMINAL'
     SETTINGS_PRIORITY = 0
 conf += Settings
-"""
+
 import pyforms, math, cv2, sys, os, json
 from pyforms import BaseWidget
 from pyforms.Controls import ControlNumber
@@ -35,14 +35,13 @@ class TrackingWindow(BaseWidget):
         super(TrackingWindow, self).__init__('Tracking', parent_win=parent)
         self.project = project
         
-        if conf.PYFORMS_USE_QT5:
-            self.layout().setContentsMargins(5,5,5,5)
-        else:
-            self.layout().setMargin(5)
-        
-
-        self.setMinimumHeight(800)
-        self.setMinimumWidth(1100)
+        if conf.PYFORMS_MODE=='GUI':
+            if conf.PYFORMS_USE_QT5:
+                self.layout().setContentsMargins(5,5,5,5)
+            else:
+                self.layout().setMargin(5)
+            self.setMinimumHeight(800)
+            self.setMinimumWidth(1100)
         
         self._toggle_btn    = ControlButton('Hide datasets list', checkable=True)
         self._input         = ControlEmptyWidget('Videos to process')
