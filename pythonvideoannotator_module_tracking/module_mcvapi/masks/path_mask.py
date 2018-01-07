@@ -3,7 +3,7 @@ from mcvapi.masks.path_mask import PathMask as Class
 
 class PathMask(Class):
     
-    IMPORT = "from pythonvideoannotator_module_tracking.mcvapi.masks.path_mask import PathMask"
+    IMPORT = "from pythonvideoannotator_module_tracking.module_mcvapi.masks.path_mask import PathMask"
     
 
 

@@ -6,7 +6,7 @@ from pyforms import BaseWidget
 
 class SortPaths(MCVBase):
     
-    IMPORT = "from pythonvideoannotator_module_tracking.mcvapi.blobs.sort_paths import SortPaths"
+    IMPORT = "from pythonvideoannotator_module_tracking.module_mcvapi.blobs.sort_paths import SortPaths"
 
     def __init__(self, **kwargs):
         super(SortPaths, self).__init__(**kwargs)

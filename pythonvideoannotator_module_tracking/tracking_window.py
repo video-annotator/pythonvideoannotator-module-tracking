@@ -1,5 +1,11 @@
-import pyforms, math, cv2, sys, os
 from pysettings import conf
+"""
+class Settings(object):
+    PYFORMS_MODE = 'TERMINAL'
+    SETTINGS_PRIORITY = 0
+conf += Settings
+"""
+import pyforms, math, cv2, sys, os, json
 from pyforms import BaseWidget
 from pyforms.Controls import ControlNumber
 from pyforms.Controls import ControlList
@@ -11,9 +17,10 @@ from pyforms.Controls import ControlCheckBoxList
 from pyforms.Controls import ControlEmptyWidget
 from pyforms.Controls import ControlProgress
 
-from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.contours import Contours
-from pythonvideoannotator_module_tracking.mcvgui.dialogs.tracking_filter import TrackingFilter
-from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path import Path
+from pythonvideoannotator_models.models.video.objects.object2d.datasets.contours import Contours
+from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
+
+from pythonvideoannotator_module_tracking.module_mcvgui.dialogs.tracking_filter import TrackingFilter
 from pythonvideoannotator_models.models.video.objects.object2d import Object2D
 
 
@@ -21,21 +28,22 @@ from pythonvideoannotator_models_gui.dialogs import DatasetsDialog
 
 import simplejson as json
 
+
 class TrackingWindow(BaseWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, project=None):
         super(TrackingWindow, self).__init__('Tracking', parent_win=parent)
-        self.mainwindow = parent
-
+        self.project = project
+        
         if conf.PYFORMS_USE_QT5:
             self.layout().setContentsMargins(5,5,5,5)
         else:
             self.layout().setMargin(5)
-            
+        
 
         self.setMinimumHeight(800)
         self.setMinimumWidth(1100)
-
+        
         self._toggle_btn    = ControlButton('Hide datasets list', checkable=True)
         self._input         = ControlEmptyWidget('Videos to process')
         
@@ -59,24 +67,29 @@ class TrackingWindow(BaseWidget):
         self.input_dialog.objects_filter  = lambda x: isinstance(x, Object2D)
         self.input_dialog.datasets_filter = lambda x: isinstance(x, (Contours,Path) )
         self.input_dialog.video_selection_changed_event = self.__video_selection_changed_event
+        self.input_dialog.project = project
         self._input.value = self.input_dialog
 
         self.load_order = ['_input','_filter_panel']
 
-
-        self._filter                = TrackingFilter(parent=self, video=self.mainwindow.video)
+        self._filter                = TrackingFilter(parent=self)
         self._filter_panel.value    = self._filter
         self._apply.value           = self.__apply_event
-        self._apply.icon            = conf.ANNOTATOR_ICON_PATH
+        try:
+            self._apply.icon        = conf.ANNOTATOR_ICON_PATH
+        except AttributeError:
+            pass
 
         self._toggle_btn.value   = self.__toggle_btn_click_event
         self._toggle_btn.checked = True
 
         self._progress.hide()
 
+    """
     def init_form(self):
         super(TrackingWindow, self). init_form()
-        self.input_dialog.project = self.mainwindow.project
+        project = self.mainwindow.project if self.mainwindow else None
+    """ 
         
     
     ###################
@@ -86,6 +99,17 @@ class TrackingWindow(BaseWidget):
     ###########################################################################
 
     def __export_code_evt(self):
+        """
+        data = self.save_form({})
+        with open('data.txt', 'w') as outfile:
+            json.dump(data, outfile)
+        """
+        """
+        with open('data.txt') as data_file:
+            data_loaded = json.load(data_file)
+            self.load_form(data_loaded)
+        return
+        """
         codefile = os.path.join( os.path.dirname(__file__), 'code_template.py' )
         with open(codefile, 'r') as infile:
             template = infile.read()
@@ -220,5 +244,12 @@ class TrackingWindow(BaseWidget):
     
 
 
-if __name__ == '__main__': 
-    pyforms.startApp(TrackingWindow)
+if __name__ == '__main__':
+
+    from pythonvideoannotator_models.models import Project
+    from pythonvideoannotator_models_gui.dialogs import Dialog
+    proj = Project()
+    proj.load({}, '/Users/manager/Documents/video37_2017-05-26T10_23_51/video-annotator-prj')
+    Dialog.project = proj
+
+    pyforms.start_app(TrackingWindow, project=proj)

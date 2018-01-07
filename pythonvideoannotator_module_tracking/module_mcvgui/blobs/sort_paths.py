@@ -1,5 +1,5 @@
 from pyforms import BaseWidget
-from pythonvideoannotator_module_tracking.mcvapi.blobs.sort_paths import SortPaths as Class
+from pythonvideoannotator_module_tracking.module_mcvapi.blobs.sort_paths import SortPaths as Class
 
 
 class SortPaths(Class, BaseWidget):

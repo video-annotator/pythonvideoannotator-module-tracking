@@ -2,11 +2,11 @@ from pyforms import BaseWidget
 from pyforms.Controls import ControlSlider
 from pyforms.Controls import ControlButton
 from pyforms.Controls import ControlEmptyWidget
-from pythonvideoannotator_module_tracking.mcvapi.masks.path_mask import PathMask as Class
+from pythonvideoannotator_module_tracking.module_mcvapi.masks.path_mask import PathMask as Class
 
 from pythonvideoannotator_models_gui.dialogs import DatasetsDialog
-from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.contours import Contours
-from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path import Path
+from pythonvideoannotator_models.models.video.objects.object2d.datasets.contours import Contours
+from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
 
 
 class PathMask(Class, BaseWidget):

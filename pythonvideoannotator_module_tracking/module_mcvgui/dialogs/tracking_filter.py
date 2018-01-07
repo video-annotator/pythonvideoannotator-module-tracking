@@ -5,9 +5,9 @@ from mcvgui.filters.adaptative_threshold    import AdaptativeThreshold
 
 #from mcvgui.masks.polygons_mask            import PolygonsMask
 #from mcvgui.masks.path_mask                import PathMask
-from pythonvideoannotator_module_tracking.mcvgui.filters.background_subtract import BackgroundSubtract
-from pythonvideoannotator_module_tracking.mcvgui.masks.polygons_mask         import PolygonsMask
-from pythonvideoannotator_module_tracking.mcvgui.masks.path_mask             import PathMask
+from pythonvideoannotator_module_tracking.module_mcvgui.filters.background_subtract import BackgroundSubtract
+from pythonvideoannotator_module_tracking.module_mcvgui.masks.polygons_mask         import PolygonsMask
+from pythonvideoannotator_module_tracking.module_mcvgui.masks.path_mask             import PathMask
 
 from mcvgui.blobs.find_blobs            import FindBlobs
 from mcvgui.blobs.biggests_blobs        import BiggestsBlobs
@@ -15,12 +15,12 @@ from mcvgui.blobs.order_by_position     import OrderByPosition
 from mcvgui.blobs.track_path            import TrackPath
 from mcvgui.filters.morphologyex_open   import MorphologyExOpen
 from mcvgui.filters.morphologyex_close  import MorphologyExClose
-from pythonvideoannotator_module_tracking.mcvgui.blobs.sort_paths import SortPaths
+from pythonvideoannotator_module_tracking.module_mcvgui.blobs.sort_paths import SortPaths
 
 from pythonvideoannotator_models_gui.dialogs import DatasetsDialog
 
-from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.contours import Contours
-from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path import Path
+from pythonvideoannotator_models.models.video.objects.object2d.datasets.contours import Contours
+from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
 
 
 

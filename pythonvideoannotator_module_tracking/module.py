@@ -10,8 +10,7 @@ class Module(object):
 		This implements the Path edition functionality
 		"""
 		super(Module, self).__init__()
-		self.tracking_window = TrackingWindow(self)
-		self.tracking_window.project = self._project
+		self.tracking_window = TrackingWindow(self, project=self._project)
 
 		self.mainmenu[1]['Modules'].append(
 			{'Track objects': self.tracking_window.show, 'icon':conf.ANNOTATOR_ICON_PATH },			
