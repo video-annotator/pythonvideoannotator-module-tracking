@@ -12,8 +12,11 @@ class BackgroundSubtract(Class, BaseWidget):
 		BaseWidget.__init__(self, 'Polygons Mask')
 		Class.__init__(self, **kwargs)
 
-		self.layout().setContentsMargins(10, 5, 10, 5)
-		self.setMinimumHeight(230)
+		try:
+			self.layout().setContentsMargins(10, 5, 10, 5)
+			self.setMinimumHeight(230)
+		except:
+			pass
 
 		self._panel	= ControlEmptyWidget('Panel', default=ObjectsDialog() )
 		self._panel.value.objects_filter = lambda x: isinstance(x, Image)

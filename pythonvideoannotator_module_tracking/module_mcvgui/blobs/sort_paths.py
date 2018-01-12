@@ -8,5 +8,8 @@ class SortPaths(Class, BaseWidget):
 		BaseWidget.__init__(self, 'Sort paths')
 		Class.__init__(self, **kwargs)
 
-		self.layout().setContentsMargins(10, 5, 10, 5)
-		self.setMinimumHeight(55)
+		try:
+			self.layout().setContentsMargins(10, 5, 10, 5)
+			self.setMinimumHeight(55)
+		except:
+			pass

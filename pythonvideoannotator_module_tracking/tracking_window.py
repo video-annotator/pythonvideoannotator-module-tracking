@@ -1,10 +1,10 @@
 from pysettings import conf
 
-class Settings(object):
+"""class Settings(object):
     PYFORMS_MODE = 'TERMINAL'
     SETTINGS_PRIORITY = 0
 conf += Settings
-
+"""
 import pyforms, math, cv2, sys, os, json
 from pyforms import BaseWidget
 from pyforms.Controls import ControlNumber
@@ -31,10 +31,10 @@ import simplejson as json
 
 class TrackingWindow(BaseWidget):
 
-    def __init__(self, parent=None, project=None):
-        super(TrackingWindow, self).__init__('Tracking', parent_win=parent)
-        self.project = project
-        
+    def __init__(self, *args, **kwargs):
+        super(TrackingWindow, self).__init__('Tracking window', **kwargs)
+        self.project = kwargs.get('project', None)
+
         if conf.PYFORMS_MODE=='GUI':
             if conf.PYFORMS_USE_QT5:
                 self.layout().setContentsMargins(5,5,5,5)
@@ -58,7 +58,7 @@ class TrackingWindow(BaseWidget):
             '_filter_panel',
             '_apply',
             '_progress',
-            '_expcode_btn'
+            #'_expcode_btn'
         ]
 
         # configure the dialog with the datasets to update
@@ -66,7 +66,7 @@ class TrackingWindow(BaseWidget):
         self.input_dialog.objects_filter  = lambda x: isinstance(x, Object2D)
         self.input_dialog.datasets_filter = lambda x: isinstance(x, (Contours,Path) )
         self.input_dialog.video_selection_changed_event = self.__video_selection_changed_event
-        self.input_dialog.project = project
+        self.input_dialog.project = self.project
         self._input.value = self.input_dialog
 
         self.load_order = ['_input','_filter_panel']
@@ -171,6 +171,10 @@ class TrackingWindow(BaseWidget):
     
     @property
     def player(self): return self._filter._player
+
+    def process(self):
+        self._apply.checked = True
+        self.__apply_event()
     
     def __apply_event(self):
 
@@ -193,6 +197,7 @@ class TrackingWindow(BaseWidget):
             # process each selected video
             count = 0
             for video, (begin, end), datasets_list in self.input_dialog.selected_data:
+                print('Open video', video.filepath)
                 capture = cv2.VideoCapture(video.filepath)
                 capture.set(cv2.CAP_PROP_POS_FRAMES, begin)
 
@@ -206,11 +211,14 @@ class TrackingWindow(BaseWidget):
                 blobs_paths     = None
                 firstblob_index = begin
 
+                print('Process from frame', begin, 'to frame', end)
                 # process the frames of the video
                 for index in range(begin, end):
                     res, frame = capture.read()
                     
-                    if not res: break
+                    if not res: 
+                        end = index
+                        break
                     if not self._apply.checked: break
 
                     blobs_paths = self._filter.processflow(frame, frame_index=index)
@@ -244,11 +252,12 @@ class TrackingWindow(BaseWidget):
 
 
 if __name__ == '__main__':
-
     from pythonvideoannotator_models.models import Project
     from pythonvideoannotator_models_gui.dialogs import Dialog
+    
     proj = Project()
-    proj.load({}, '/Users/manager/Documents/video37_2017-05-26T10_23_51/video-annotator-prj')
+    proj.load({}, '/home/ricardo/Downloads/cecilia_movies/movies/20170526/video37_2017-05-26T10_23_51/video-annotator-prj')
     Dialog.project = proj
-
-    pyforms.start_app(TrackingWindow, project=proj)
+    
+    pyforms.start_app(TrackingWindow, app_args={'project':proj})
+    proj.save()

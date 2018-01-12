@@ -43,11 +43,9 @@ class TrackingFilter(SimpleFilter):
 
     def build_workflow_instance(self):
         # export the configured parameters
-        data = {'project': self._video.project }
+        data = {'project': self._video.project, 'load': True }
         for name, f in self._imgfilters.value: f.save(data)
         for name, f in self._blobsfilters.value: f.save(data)
-        
-        data['project'] = self._video.project
 
         # create the workflow class and import the configured parameters
         instance = type('ProcessingPipeline', tuple(self.pipeline_classes()), {})(**data)

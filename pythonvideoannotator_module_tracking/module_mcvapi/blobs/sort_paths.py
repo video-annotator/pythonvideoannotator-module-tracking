@@ -25,7 +25,7 @@ class SortPaths(MCVBase):
         progress_control = kwargs.get('progress_control', None)
         
         # tracked blobs paths
-        blobs_paths      = input_data 
+        blobs_paths = input_data 
         # the first frame index with blobs
         begin = kwargs.get('begin') 
         # the first frame index with blobs
@@ -37,6 +37,7 @@ class SortPaths(MCVBase):
         # datasets to use to sort the blobs paths
         datasets_list = self._param_pathmask_paths if hasattr(self, '_param_pathmask_paths') else out_datasets
 
+        print('END', blobs_paths, datasets_list)
         # Order paths and associate them to the right datasets
         if blobs_paths is not None:
 
