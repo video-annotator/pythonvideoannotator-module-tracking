@@ -52,7 +52,7 @@ class TrackingWindow(BaseWidget):
 
         self._expcode_btn   = ControlButton('Export code', default=self.__export_code_evt)
         
-        self._formset = [
+        self.formset = [
             '_toggle_btn',
             '_input',
             '_filter_panel',
@@ -210,8 +210,8 @@ class TrackingWindow(BaseWidget):
                 #I use this technique because for some formats of videos opencv does not jump immediately to the requested frame
                 blobs_paths     = None
                 firstblob_index = begin
+                setfirstblob_index = True
 
-                print('Process from frame', begin, 'to frame', end)
                 # process the frames of the video
                 for index in range(begin, end):
                     res, frame = capture.read()
@@ -223,7 +223,9 @@ class TrackingWindow(BaseWidget):
 
                     blobs_paths = self._filter.processflow(frame, frame_index=index)
 
-                    if firstblob_index==begin and len(blobs_paths)>0: firstblob_index = index
+                    if setfirstblob_index and len(blobs_paths)>0:
+                        setfirstblob_index = False
+                        firstblob_index = index
 
                     self._progress.value = count
                     count += 1
