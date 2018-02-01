@@ -1,7 +1,7 @@
 from pyforms import BaseWidget
-from pyforms.Controls import ControlSlider
-from pyforms.Controls import ControlButton
-from pyforms.Controls import ControlEmptyWidget
+from pyforms.controls import ControlSlider
+from pyforms.controls import ControlButton
+from pyforms.controls import ControlEmptyWidget
 from pythonvideoannotator_module_tracking.module_mcvapi.masks.path_mask import PathMask as Class
 
 from pythonvideoannotator_models_gui.dialogs import DatasetsDialog

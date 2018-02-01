@@ -1,6 +1,6 @@
 import pyforms, cv2, base64, numpy as np
 from pyforms import BaseWidget
-from pyforms.Controls import ControlEmptyWidget
+from pyforms.controls import ControlEmptyWidget
 from mcvapi.masks.polygons_mask import PolygonsMask as Class
 from pythonvideoannotator_models_gui.models.video.objects.geometry import Geometry
 
