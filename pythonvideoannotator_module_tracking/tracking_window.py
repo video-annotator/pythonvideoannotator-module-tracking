@@ -1,4 +1,4 @@
-from pysettings import conf
+from pyforms import conf
 
 """class Settings(object):
     PYFORMS_MODE = 'TERMINAL'
