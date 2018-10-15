@@ -33,8 +33,8 @@ class PolygonsMask(Class, BaseWidget):
 				for polygons in polygons_set:
 					polygons_list += [p for l, p in polygons.geometry]
 				break
-		self._param_polygons_mask = None
-		self._param_polygons_polys = np.int32(polygons_list)
+		self._param_polygonsmask_mask = None
+		self._param_polygonsmask_polys = np.int32(polygons_list)
 
 	@property
 	def video(self): return None
