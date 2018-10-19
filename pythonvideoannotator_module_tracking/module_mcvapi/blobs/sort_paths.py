@@ -37,7 +37,6 @@ class SortPaths(MCVBase):
         # datasets to use to sort the blobs paths
         datasets_list = self._param_pathmask_paths if hasattr(self, '_param_pathmask_paths') else out_datasets
 
-        print('END', blobs_paths, datasets_list)
         # Order paths and associate them to the right datasets
         if blobs_paths is not None:
 

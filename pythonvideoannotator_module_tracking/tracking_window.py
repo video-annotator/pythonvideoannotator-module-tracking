@@ -133,7 +133,6 @@ class TrackingWindow(BaseWidget):
             proj_path   = self.project.directory,
             inputdata   = inputdata
         )
-        print(code)
         
         scriptsdir = os.path.join(self.project.directory, 'scripts')
         if not os.path.exists(scriptsdir): os.makedirs(scriptsdir)
