@@ -1,4 +1,4 @@
-from pyforms import conf
+from confapp import conf
 
 """class Settings(object):
     PYFORMS_MODE = 'TERMINAL'
@@ -6,7 +6,7 @@ from pyforms import conf
 conf += Settings
 """
 import pyforms, math, cv2, sys, os, json
-from pyforms import BaseWidget
+from pyforms.basewidget import BaseWidget
 from pyforms.controls import ControlNumber
 from pyforms.controls import ControlList
 from pyforms.controls import ControlCombo

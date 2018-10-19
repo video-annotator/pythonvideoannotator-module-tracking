@@ -1,5 +1,5 @@
 import pyforms, cv2, base64, numpy as np
-from pyforms import BaseWidget
+from pyforms.basewidget import BaseWidget
 from pyforms.controls import ControlEmptyWidget
 from mcvgui.filters.background_subtract import BackgroundSubtract as Class
 from pythonvideoannotator_models_gui.models.video.objects.image import Image

@@ -2,7 +2,7 @@ from mcvapi.mcvbase import MCVBase
 from mcvapi.blobs.order_by_position import combinations
 import numpy as np, math, sys
 
-from pyforms import BaseWidget
+from pyforms.basewidget import BaseWidget
 
 class SortPaths(MCVBase):
     

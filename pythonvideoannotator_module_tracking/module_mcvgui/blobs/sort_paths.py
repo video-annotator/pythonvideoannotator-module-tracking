@@ -1,4 +1,4 @@
-from pyforms import BaseWidget
+from pyforms.basewidget import BaseWidget
 from pythonvideoannotator_module_tracking.module_mcvapi.blobs.sort_paths import SortPaths as Class
 
 
