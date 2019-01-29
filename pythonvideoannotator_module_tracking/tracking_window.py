@@ -156,7 +156,7 @@ class TrackingWindow(BaseWidget):
         self._filter.clear()
         self._filter.video = video
         self._filter.clear()
-        self.player.update_frame()
+        self.player.call_next_frame()
 
     ###########################################################################
     ### PROPERTIES ############################################################
