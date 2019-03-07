@@ -17,9 +17,10 @@ class SortPaths(MCVBase):
         self._param_sortpaths_paths = data.get('sortpaths_paths', [])
 
     def save(self, data, **kwargs):
-        super(SortPaths, self).save(data, **kwargs)
+        data = super(SortPaths, self).save(data, **kwargs)
         data['sortpaths_paths']  = self._param_sortpaths_paths
-        
+        return data
+
     def end(self, input_data, **kwargs):
         input_data       = super(SortPaths, self).end(input_data, **kwargs)
         progress_control = kwargs.get('progress_control', None)

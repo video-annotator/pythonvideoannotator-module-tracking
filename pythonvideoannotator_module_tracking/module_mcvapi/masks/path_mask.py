@@ -20,7 +20,8 @@ class PathMask(Class):
 
 
     def save(self, data, **kwargs):
-        super(PathMask, self).save(data, **kwargs)
+        data = super(PathMask, self).save(data, **kwargs)
         datasets = self._param_pathmask_paths
         data['pathmask_datasets'] = [(dataset.object2d.video.name,dataset.object2d.name,dataset.name) for dataset in datasets]
         del data['pathmask_paths']
+        return data
