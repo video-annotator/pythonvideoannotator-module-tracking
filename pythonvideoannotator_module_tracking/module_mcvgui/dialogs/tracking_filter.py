@@ -119,7 +119,7 @@ class TrackingFilter(SimpleFilter):
             ('Find the blobs',      FindBlobs       ),
             ('Select the biggests', BiggestsBlobs   ),
             ('Sort blobs',          OrderByPosition ),
-            ('Tack paths',          TrackPath       ),
+            ('Track paths',          TrackPath       ),
             ('Sort paths',          SortPaths       )
         ])
 
