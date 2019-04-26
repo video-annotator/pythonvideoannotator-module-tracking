@@ -47,7 +47,6 @@ class TrackingWindow(BaseWidget):
         self._progress      = ControlProgress('Progress')
         self._apply         = ControlButton('Apply', checkable=True)
 
-        self._expcode_btn   = ControlButton('Export code', default=self.__export_code_evt)
         
         self.formset = [
             '_toggle_btn',
@@ -55,7 +54,6 @@ class TrackingWindow(BaseWidget):
             '_filter_panel',
             '_apply',
             '_progress',
-            #'_expcode_btn'
         ]
 
         # configure the dialog with the datasets to update
@@ -81,12 +79,6 @@ class TrackingWindow(BaseWidget):
 
         self._progress.hide()
 
-    """
-    def init_form(self):
-        super(TrackingWindow, self). init_form()
-        project = self.mainwindow.project if self.mainwindow else None
-    """ 
-        
     
     ###################
 
@@ -94,52 +86,6 @@ class TrackingWindow(BaseWidget):
     ### EVENTS ################################################################
     ###########################################################################
 
-    def __export_code_evt(self):
-        """
-        data = self.save_form({})
-        with open('data.txt', 'w') as outfile:
-            json.dump(data, outfile)
-        """
-        """
-        with open('data.txt') as data_file:
-            data_loaded = json.load(data_file)
-            self.load_form(data_loaded)
-        return
-        """
-        codefile = os.path.join( os.path.dirname(__file__), 'code_template.py' )
-        with open(codefile, 'r') as infile:
-            template = infile.read()
-    
-        classes_lst = self._filter.pipeline_classes()
-        params      = self._filter.save()
-        params['project']='p'
-
-        inputdata = {}
-        for video, (begin, end), datasets_list in self.input_dialog.selected_data:
-            objects = {}
-            for dataset in datasets_list: objects[dataset.object2d.name] = []
-            for dataset in datasets_list: objects[dataset.object2d.name].append(dataset.name)
-
-            inputdata[video.name] = {
-                'begin':   begin,
-                'end':     end,
-                'objects': objects
-            }
-        
-        code = template.format(
-            classes     = ', '.join([c.__name__ for c in classes_lst]),
-            parameters  = '[\n        '+',\n        '.join(["('{0}',{1})".format(n,p) for n, p in params.items()])+'\n    ]',
-            imports     = '\n'.join([c.IMPORT for c in classes_lst]),
-            proj_path   = self.project.directory,
-            inputdata   = inputdata
-        )
-        
-        scriptsdir = os.path.join(self.project.directory, 'scripts')
-        if not os.path.exists(scriptsdir): os.makedirs(scriptsdir)
-
-        with open(os.path.join(scriptsdir, 'tracking.py'), 'w') as outfile:
-            outfile.write(code)
-        return code
 
 
     def __toggle_btn_click_event(self):
